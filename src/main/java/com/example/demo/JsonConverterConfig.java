@@ -11,6 +11,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @Configuration
@@ -20,8 +21,7 @@ public class JsonConverterConfig extends WebMvcConfigurerAdapter {
 
     @Bean
     public HttpMessageConverter<String> responseBodyConverter() {
-        StringHttpMessageConverter converter = new StringHttpMessageConverter(Charset.forName("UTF-8"));
-        return converter;
+        return new StringHttpMessageConverter(StandardCharsets.UTF_8);
     }
 
     @Bean

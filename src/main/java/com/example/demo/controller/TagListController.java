@@ -19,8 +19,10 @@ import java.util.List;
 @RequestMapping(value = "/tag")
 @Api(value = "帖子标签列表")
 public class TagListController {
+
     @Resource
     TagListMapper tagListMapper;
+
     @Resource
     UgcMapper ugcMapper;
 
@@ -37,11 +39,11 @@ public class TagListController {
         if (userId > 0) {
             for (TableTagList tag : lists) {
                 Object followTag = ugcMapper.hasFollowTag(tag.tagId, userId);
-                tag.hasFollow = followTag == null ? false : ((Boolean) followTag).booleanValue();
+                tag.hasFollow = followTag == null ? false : (Boolean) followTag;
             }
         }
 
-        ApiResponse response = new ApiResponse();
+        ApiResponse<List<TableTagList>> response = new ApiResponse<>();
         response.setResult(ApiResponse.STATUS_SUCCESS, null, lists);
         return response;
     }
@@ -53,7 +55,7 @@ public class TagListController {
     public ApiResponse toggleTagFollow(@RequestParam(value = "tagId", required = false, defaultValue = "0") long tagId,
                                        @RequestParam(value = "userId", required = false, defaultValue = "0") long userId) {
 
-        ApiResponse response = new ApiResponse();
+        ApiResponse<Object> response = new ApiResponse<>();
         if (tagId == 0 || userId == 0) {
             response.setResult(ApiResponse.STATUS_FAILED, "tagId 或 userId 不能为空");
             return response;
@@ -61,7 +63,7 @@ public class TagListController {
 
         ugcMapper.toggleTagListFollow(tagId, userId);
         Object followTag = ugcMapper.hasFollowTag(tagId, userId);
-        response.setData("hasFollow", followTag == null ? false : ((Boolean) followTag).booleanValue());
+        response.setData("hasFollow", followTag != null && (Boolean) followTag);
         return response;
     }
 }

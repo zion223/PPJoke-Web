@@ -65,7 +65,7 @@ public class FeedsController {
                                          @RequestParam(value = "profileType", required = true) String profileType,
                                          @RequestParam(value = "feedId", required = true, defaultValue = "0") int feedId) {
 
-        ApiResponse response = new ApiResponse();
+        ApiResponse<Object> response = new ApiResponse<>();
         List<TableHotFeeds> tableHotFeeds = feedsMapper.queryProfileFeeds(userId, pageCount, profileType, feedId <= 0 ? Integer.MAX_VALUE : feedId);
         HashMap<Long, List<Long>> tempMap = new HashMap<>();
         if (tableHotFeeds != null) {
@@ -187,7 +187,7 @@ public class FeedsController {
     public ApiResponse queryHistory(@RequestParam("userId") Long userId,
                                     @RequestParam(value = "pageCount", defaultValue = "10", required = false) int pageCount,
                                     @RequestParam(value = "feedId", defaultValue = "0") int feedId) {
-        ApiResponse response = new ApiResponse();
+        ApiResponse<List<TableHotFeeds>> response = new ApiResponse<>();
         if (userId == null) {
             response.setResult(ApiResponse.STATUS_FAILED, "userId不能为空", null);
             return response;
@@ -206,7 +206,7 @@ public class FeedsController {
     public ApiResponse queryFavorite(@RequestParam("userId") Long userId,
                                      @RequestParam(value = "pageCount", defaultValue = "10", required = false) int pageCount,
                                      @RequestParam("feedId") int feedId) {
-        ApiResponse response = new ApiResponse();
+        ApiResponse<List<TableHotFeeds>> response = new ApiResponse<>();
         if (userId == null) {
             response.setResult(ApiResponse.STATUS_FAILED, "userId不能为空", null);
             return response;

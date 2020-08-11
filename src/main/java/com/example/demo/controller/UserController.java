@@ -31,12 +31,11 @@ public class UserController {
     @ApiOperation(value = "查询用户", notes = "根据id来查询用户")
     @JsonView(value = TableUser.class)
     public ApiResponse query(@RequestParam(value = "userId") long userId) {
-        ApiResponse response = new ApiResponse();
+        ApiResponse<TableUser> response = new ApiResponse<>();
         TableUser user = userMapper.queryUser(userId);
         if (user != null) {
-
+            response.setData(user);
         }
-        response.setData(user);
         return response;
     }
 
@@ -45,7 +44,7 @@ public class UserController {
     @ApiOperation(value = "查询两个用户的关系", notes = "根据id来查询用户")
     @JsonView(value = TableUser.class)
     public ApiResponse relation(@RequestParam(value = "authorId") long authorId, @RequestParam("userId") long userId) {
-        ApiResponse response = new ApiResponse();
+        ApiResponse<TableUser> response = new ApiResponse<>();
         TableUser user = userMapper.queryUser(authorId);
         try {
             user.hasFollow = (boolean) ugcMapper.isUserFollow(userId, authorId);
@@ -61,7 +60,7 @@ public class UserController {
     @ApiOperation(value = "删除用户", notes = "根据id来删除用户")
     @JsonView(value = Boolean.class)
     public ApiResponse delete(@RequestParam(value = "userId") long userId) {
-        ApiResponse response = new ApiResponse();
+        ApiResponse<Boolean> response = new ApiResponse<>();
         int result = userMapper.delete(userId);
         if (result >= 1) {
             response.setData(true);
@@ -75,7 +74,7 @@ public class UserController {
     @ApiOperation(value = "更新用户信息", notes = "根据id来更新用户信息")
     @JsonView(value = Boolean.class)
     public ApiResponse update(@RequestParam @Valid TableUser user, BindingResult binding) {
-        ApiResponse response = new ApiResponse();
+        ApiResponse<Boolean> response = new ApiResponse<>();
         int result = userMapper.Update(user);
         if (result >= 1) {
             response.setData(true);
@@ -141,7 +140,7 @@ public class UserController {
     public ApiResponse<List<User>> queryFans(@RequestParam(value = "userId", defaultValue = "0") Long userId,
                                              @RequestParam(value = "page", defaultValue = "0") Integer page,
                                              @RequestParam(value = "pageCount", defaultValue = "10", required = false) Integer pageCount) {
-        ApiResponse response = new ApiResponse();
+        ApiResponse<List<User>> response = new ApiResponse<>();
         if (userId == 0) {
             response.setData("data", null);
             return response;
@@ -158,7 +157,7 @@ public class UserController {
     public ApiResponse<List<User>> queryFollows(@RequestParam(value = "userId", defaultValue = "0") Long userId,
                                                 @RequestParam(value = "page", defaultValue = "0") Integer page,
                                                 @RequestParam(value = "pageCount", defaultValue = "10", required = false) Integer pageCount) {
-        ApiResponse response = new ApiResponse();
+        ApiResponse<List<User>> response = new ApiResponse<>();
         if (userId == 0) {
             response.setData("data", null);
             return response;

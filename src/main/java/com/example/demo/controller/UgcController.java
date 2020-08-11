@@ -39,7 +39,7 @@ public class UgcController {
     @RequestMapping(value = "/queryUgcByItemId", method = RequestMethod.GET)
     @ApiOperation(value = "根据itemId查询段子的ugc属性")
     public ApiResponse queryUgcByItemId(Long itemId) {
-        ApiResponse response = new ApiResponse();
+        ApiResponse<TableFeedUgc> response = new ApiResponse<>();
         if (itemId == null) {
             response.setResult(ApiResponse.STATUS_FAILED, "itemId 不能为空");
             return response;
@@ -68,7 +68,7 @@ public class UgcController {
     @RequestMapping(value = "/increaseCommentCount", method = RequestMethod.GET)
     @ApiOperation(value = "增加段子评论的数量")
     public ApiResponse increaseCommentCount(Long itemId) {
-        ApiResponse response = new ApiResponse();
+        ApiResponse<Object> response = new ApiResponse<>();
         if (itemId == null) {
             response.setResult(ApiResponse.STATUS_FAILED, "itemId  不能为空");
             return response;
@@ -83,7 +83,7 @@ public class UgcController {
     @ApiOperation(value = "收藏一个帖子", notes = "根据itemId来收藏一个帖子")
     @JsonView(value = Boolean.class)
     public ApiResponse toggleFavorite(@RequestParam(value = "itemId", defaultValue = "0") Long itemId, @RequestParam(value = "userId", defaultValue = "0") Long userId) {
-        ApiResponse response = new ApiResponse();
+        ApiResponse<Object> response = new ApiResponse<>();
         if (itemId == 0 || userId == 0) {
             response.setData("result", "itemId|userId 不能为空");
             return response;
@@ -91,7 +91,7 @@ public class UgcController {
         TableUser user = userMapper.queryUser(userId);
         ugcMapper.toggleFavorite(itemId, userId);
         Object hasFavorite = ugcMapper.hasFavorite(itemId, userId);
-        boolean result = hasFavorite == null ? false : (boolean) hasFavorite;
+        boolean result = hasFavorite != null && (boolean) hasFavorite;
         if (result) {
             user.favoriteCount = user.favoriteCount + 1;
             response.setData("hasFavorite", true);
@@ -107,7 +107,7 @@ public class UgcController {
     @RequestMapping(value = "/increaseLikeCount", method = RequestMethod.GET)
     @ApiOperation(value = "增加一条段子喜欢的数量")
     public ApiResponse increaseLikeCount(Long itemId) {
-        ApiResponse response = new ApiResponse();
+        ApiResponse<Object> response = new ApiResponse<>();
         if (itemId == null) {
             response.setResult(ApiResponse.STATUS_FAILED, "itemId 不能为空");
             return response;
@@ -121,7 +121,7 @@ public class UgcController {
     @RequestMapping(value = "/increaseShareCount", method = RequestMethod.GET)
     @ApiOperation(value = "增加一条段子分享的数量")
     public ApiResponse increaseShareCount(Long itemId) {
-        ApiResponse response = new ApiResponse();
+        ApiResponse<Object> response = new ApiResponse<>();
         if (itemId == null) {
             response.setResult(ApiResponse.STATUS_FAILED, "itemId 不能为空");
             return response;
@@ -135,7 +135,7 @@ public class UgcController {
     @RequestMapping(value = "/toggleFeedLike", method = RequestMethod.GET)
     @ApiOperation(value = "变换用户对该条段子的喜欢结果")
     public ApiResponse toggleLike(Long itemId, Long userId) {
-        ApiResponse apiResponse = new ApiResponse();
+        ApiResponse<Object> apiResponse = new ApiResponse<>();
         if (itemId == null || userId == null) {
             apiResponse.setResult(ApiResponse.STATUS_FAILED, "itemId或者userId不能为空");
             return apiResponse;
@@ -146,7 +146,7 @@ public class UgcController {
             TableUser user = userMapper.queryUser(userId);
             if (user != null) {
                 Object liked = ugcMapper.isLiked(itemId, userId);
-                boolean hasLiked = liked == null ? false : ((Boolean) liked).booleanValue();
+                boolean hasLiked = liked == null ? false : (Boolean) liked;
                 if (hasLiked) {
                     ugcMapper.dissFeed(itemId, userId);
                 } else {
@@ -169,13 +169,13 @@ public class UgcController {
     @RequestMapping(value = "/isLiked", method = RequestMethod.GET)
     @ApiOperation(value = "查询用户对该条段子的喜欢结果")
     public ApiResponse isLiked(Long itemId, Long userId) {
-        ApiResponse apiResponse = new ApiResponse();
+        ApiResponse<Object> apiResponse = new ApiResponse<>();
         if (itemId == null || userId == null) {
             apiResponse.setResult(ApiResponse.STATUS_FAILED, "itemId或者userId不能为空");
             return apiResponse;
         }
         Object liked = ugcMapper.isLiked(itemId, userId);
-        boolean hasLiked = liked == null ? false : ((Boolean) liked).booleanValue();
+        boolean hasLiked = liked == null ? false : (Boolean) liked;
         apiResponse.setData("hasLiked", hasLiked);
         return apiResponse;
     }
@@ -184,7 +184,7 @@ public class UgcController {
     @RequestMapping(value = "/toggleTagListFollow", method = RequestMethod.GET)
     @ApiOperation(value = "变换用户对该标签类型的喜欢结果")
     public ApiResponse toggleTagListFollow(Long tagId, Long userId) {
-        ApiResponse apiResponse = new ApiResponse();
+        ApiResponse<Object> apiResponse = new ApiResponse<>();
         if (tagId == null || userId == null) {
             apiResponse.setResult(ApiResponse.STATUS_FAILED, "tagId或者userId不能为空");
             return apiResponse;
@@ -192,7 +192,7 @@ public class UgcController {
 
         ugcMapper.toggleTagListFollow(tagId, userId);
         Object liked = ugcMapper.hasFollowTag(tagId, userId);
-        boolean hasLiked = liked == null ? false : ((Boolean) liked).booleanValue();
+        boolean hasLiked = liked != null && (Boolean) liked;
         apiResponse.setData("hasLiked", hasLiked);
         return apiResponse;
     }
@@ -201,14 +201,14 @@ public class UgcController {
     @RequestMapping(value = "/hasFollowTag", method = RequestMethod.GET)
     @ApiOperation(value = "查询用户对该标签类型的喜欢结果")
     public ApiResponse hasFollowTag(Long tagId, Long userId) {
-        ApiResponse apiResponse = new ApiResponse();
+        ApiResponse<Object> apiResponse = new ApiResponse<>();
         if (tagId == null || userId == null) {
             apiResponse.setResult(ApiResponse.STATUS_FAILED, "tagId或者userId不能为空");
             return apiResponse;
         }
 
         Object liked = ugcMapper.hasFollowTag(tagId, userId);
-        boolean hasLiked = liked == null ? false : ((Boolean) liked).booleanValue();
+        boolean hasLiked = liked == null ? false : (Boolean) liked;
         apiResponse.setData("hasLiked", hasLiked);
         return apiResponse;
     }
@@ -217,16 +217,15 @@ public class UgcController {
     @RequestMapping(value = "/toggleCommentLike", method = RequestMethod.GET)
     @ApiOperation(value = "变更用户对一条评论的喜欢状态")
     public ApiResponse toggleCommentLike(Long commentId, Long userId) {
-        ApiResponse apiResponse = new ApiResponse();
+        ApiResponse<Object> apiResponse = new ApiResponse<>();
         if (commentId == null || userId == null) {
             apiResponse.setResult(ApiResponse.STATUS_FAILED, "commentId或者userId不能为空");
             return apiResponse;
         }
 
-
         ugcCommentMapper.toggleCommentLike(commentId, userId);
         Object commentLike = ugcMapper.isCommentLike(commentId, userId);
-        boolean hasLiked = commentLike == null ? false : ((Boolean) commentLike).booleanValue();
+        boolean hasLiked = commentLike != null && (Boolean) commentLike;
         ugcCommentMapper.increaseLikeCount(commentId, hasLiked ? 1 : -1);
         apiResponse.setData("hasLiked", hasLiked);
 
@@ -249,14 +248,14 @@ public class UgcController {
     @RequestMapping(value = "/isCommentLike", method = RequestMethod.GET)
     @ApiOperation(value = "查询用户对一条评论的喜欢状态")
     public ApiResponse isCommentLike(Long commentId, Long userId) {
-        ApiResponse apiResponse = new ApiResponse();
+        ApiResponse<Object> apiResponse = new ApiResponse<>();
         if (commentId == null || userId == null) {
             apiResponse.setResult(ApiResponse.STATUS_FAILED, "commentId或者userId不能为空");
             return apiResponse;
         }
 
         Object commentLike = ugcCommentMapper.isCommentLike(commentId, userId);
-        boolean hasLiked = commentLike == null ? false : ((Boolean) commentLike).booleanValue();
+        boolean hasLiked = commentLike != null && (Boolean) commentLike;
         apiResponse.setData("hasLiked", hasLiked);
         return apiResponse;
     }
@@ -265,7 +264,7 @@ public class UgcController {
     @RequestMapping(value = "/toggleUserFollow", method = RequestMethod.GET)
     @ApiOperation(value = "变更用户对另一个用户的喜欢状态")
     public ApiResponse toggleUserFollow(@RequestParam(value = "followUserId") Long followUserId, @RequestParam(value = "userId") Long userId) {
-        ApiResponse apiResponse = new ApiResponse();
+        ApiResponse<Object> apiResponse = new ApiResponse<>();
         if (followUserId == null || userId == null) {
             apiResponse.setResult(ApiResponse.STATUS_FAILED, "followUserId或者userId不能为空");
             return apiResponse;
@@ -300,14 +299,14 @@ public class UgcController {
     @RequestMapping(value = "/isUserFollow", method = RequestMethod.GET)
     @ApiOperation(value = "查询用户对另一个用户的喜欢状态")
     public ApiResponse isUserFollow(@RequestParam(value = "followUserId") Long followUserId, @RequestParam(value = "userId") Long userId) {
-        ApiResponse apiResponse = new ApiResponse();
+        ApiResponse<Object> apiResponse = new ApiResponse<>();
         if (followUserId == null || userId == null) {
             apiResponse.setResult(ApiResponse.STATUS_FAILED, "commentId或者userId不能为空");
             return apiResponse;
         }
 
         Object commentLike = ugcMapper.isUserFollow(followUserId, userId);
-        boolean hasLiked = commentLike == null ? false : ((Boolean) commentLike).booleanValue();
+        boolean hasLiked = commentLike != null && (Boolean) commentLike;
         apiResponse.setData("hasLiked", hasLiked);
         return apiResponse;
     }
@@ -338,13 +337,13 @@ public class UgcController {
     @RequestMapping(value = "/hasDissFeed", method = RequestMethod.GET)
     @ApiOperation(value = "查询用户对一个帖子的diss状态")
     public ApiResponse hasDissFeed(Long itemId, Long userId) {
-        ApiResponse apiResponse = new ApiResponse();
+        ApiResponse<Object> apiResponse = new ApiResponse<>();
         if (itemId == null || userId == null) {
             apiResponse.setResult(ApiResponse.STATUS_FAILED, "itemId或者userId不能为空");
             return apiResponse;
         }
         Object dissFeed = ugcMapper.hasDissFeed(itemId, userId);
-        boolean hasLiked = dissFeed == null ? false : ((Boolean) dissFeed).booleanValue();
+        boolean hasLiked = dissFeed != null && (Boolean) dissFeed;
         apiResponse.setData("hasLiked", hasLiked);
         return apiResponse;
     }

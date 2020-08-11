@@ -40,7 +40,7 @@ public class CommentController {
                                          @RequestParam(value = "pageCount", required = false, defaultValue = "10") Integer pageCount, @RequestParam(value = "itemId", required = true) Long itemId,
                                          @RequestParam(value = "id", required = false, defaultValue = "0") Integer id) {
 
-        ApiResponse response = new ApiResponse();
+        ApiResponse<Object> response = new ApiResponse<>();
         if (itemId == null) {
             response.setResult(ApiResponse.STATUS_FAILED, "itemId不能为空");
             return response;
@@ -85,7 +85,7 @@ public class CommentController {
                                   @RequestParam(value = "width", required = false, defaultValue = "") int width,
                                   @RequestParam(value = "height", required = false, defaultValue = "") int height) {
 
-        ApiResponse response = new ApiResponse();
+        ApiResponse<Object> response = new ApiResponse<>();
         if (itemId == null || userId == null || StringUtils.isEmpty(commentText)) {
             response.setResult(ApiResponse.STATUS_FAILED, "itemId|userId|commentText不能为空");
             return response;
@@ -134,7 +134,7 @@ public class CommentController {
                                      @RequestParam(value = "userId", defaultValue = "0") Long userId,
                                      @RequestParam(value = "commentId", defaultValue = "0") Long commentId) {
 
-        ApiResponse response = new ApiResponse();
+        ApiResponse<Object> response = new ApiResponse<>();
         if (itemId == null || commentId == null) {
             response.setResult(ApiResponse.STATUS_FAILED, "commentId|itemId不能为空");
             return response;
