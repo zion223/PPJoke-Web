@@ -1,0 +1,115 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+<!DOCTYPE mapper PUBLIC
+        "-//mybatis.org//DTD com.example.Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.mapper.UgcCommentMapper">
+    <resultMap id="result" type="com.example.demo.table.TableFeedUgc">
+        <result property="id" column="id"/>
+        <result property="itemId" column="item_id"/>
+        <result property="likeCount" column="like_count"/>
+        <result property="shareCount" column="share_count"/>
+        <result property="commentCount" column="comment_count"/>
+        <result property="hasLiked" column="has_liked"/>
+    </resultMap>
+
+    <insert id="setCommentUgc" parameterType="com.example.demo.table.TableFeedUgc" useGeneratedKeys="true"
+            keyProperty="id">
+        <selectKey keyProperty="id" resultType="java.lang.Integer" order="BEFORE">
+            select count(*) from table_feed_comment_ugc where comment_id = ${ugc.itemId}
+        </selectKey>
+        <choose>
+            <when test="id>0">
+                update table_feed_comment_ugc
+                set comment_count = ${ugc.commentCount},like_count=${ugc.likeCount},share_count= ${ugc.shareCount}
+                where comment_id = ${ugc.itemId}
+            </when>
+            <otherwise>
+                insert into table_feed_comment_ugc
+                (comment_id,like_count,share_count,comment_count)
+                values (#{ugc.itemId},#{ugc.likeCount},#{ugc.shareCount},#{ugc.commentCount})
+            </otherwise>
+        </choose>
+    </insert>
+
+    <select id="queryUgcByCommentId" resultMap="result">
+        select * from table_feed_comment_ugc  where comment_id = #{commentId} limit 1
+    </select>
+
+    <update id="increaseCommentCount">
+        <selectKey keyProperty="id" resultType="java.lang.Integer" order="BEFORE">
+            select count(*) from table_feed_comment_ugc where comment_id = #{commentId}
+        </selectKey>
+        <choose>
+            <when test="id>0">
+                update table_feed_comment_ugc
+                set comment_count = comment_count+ #{increaseCount}
+                where comment_id = ${commentId}
+            </when>
+            <otherwise>
+                insert table_feed_comment_ugc (comment_count,comment_id) values (comment_count+1,${commentId})
+            </otherwise>
+        </choose>
+    </update>
+
+
+    <update id="increaseLikeCount">
+        <selectKey keyProperty="id" resultType="java.lang.Integer" order="BEFORE">
+            select count(*) from table_feed_comment_ugc where comment_id = ${commentId}
+        </selectKey>
+        <choose>
+            <when test="id>0">
+                update table_feed_comment_ugc
+                set like_count = like_count+ #{increaseCount}
+                where comment_id = ${commentId}
+            </when>
+            <otherwise>
+                insert table_feed_comment_ugc (like_count,comment_id) values (like_count+#{increaseCount},${commentId})
+            </otherwise>
+        </choose>
+    </update>
+
+    <update id="increaseShareCount">
+        <selectKey keyProperty="id" resultType="java.lang.Integer" order="BEFORE">
+            select count(*) from table_feed_comment_ugc where comment_id = ${commentId}
+        </selectKey>
+        <choose>
+            <when test="id>0">
+                update table_feed_comment_ugc
+                set share_count = share_count+1
+                where comment_id = ${commentId}
+            </when>
+            <otherwise>
+                insert table_feed_comment_ugc (share_count,comment_id) values (share_count+1,${commentId})
+            </otherwise>
+        </choose>
+    </update>
+
+    <insert id="toggleCommentLike">
+        <selectKey keyProperty="id" resultType="java.lang.Integer" order="BEFORE">
+            select count(*) from table_feed_comment_like where comment_id = ${commentId} and user_id =${userId}
+        </selectKey>
+        <choose>
+            <when test="id>0">
+                update table_feed_comment_like
+                set has_like = has_like^1
+                where comment_id = ${commentId} and user_id =${userId}
+            </when>
+            <otherwise>
+                insert into table_feed_comment_like (comment_id,user_id,has_like)values
+                (#{commentId},${userId},has_like^1)
+            </otherwise>
+        </choose>
+    </insert>
+
+    <select id="isCommentLike" resultType="java.lang.Boolean">
+         select has_like from table_feed_comment_like  where comment_id =${commentId} and user_id =${userId} limit 1;
+    </select>
+
+    <delete id="deleteComment">
+        delete from table_feeds_comment where item_id=#{itemId} and comment_id=#{commentId}
+    </delete>
+
+    <delete id="deleteAllComments" parameterType="java.lang.Long">
+        delete from table_feeds_comment where item_id = #{itemId}
+    </delete>
+</mapper>

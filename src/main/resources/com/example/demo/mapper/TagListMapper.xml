@@ -1,0 +1,44 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+<!DOCTYPE mapper PUBLIC
+        "-//mybatis.org//DTD com.example.Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.mapper.TagListMapper">
+    <resultMap id="resultTagList" type="com.example.demo.table.TableTagList">
+        <result property="id" column="id"></result>
+        <result property="tag_id" column="tagId"></result>
+        <result property="icon" column="icon"/>
+        <result property="background" column="background"/>
+        <result property="activityIcon" column="activity_icon"/>
+        <result property="title" column="title"/>
+        <result property="intro" column="intro"/>
+        <result property="feedNum" column="feed_num"/>
+        <result property="tagId" column="tag_id"/>
+        <result property="enterNum" column="enter_num"/>
+        <result property="followNum" column="follow_num"/>
+    </resultMap>
+
+    <select id="queryTagList" resultMap="resultTagList">
+
+        <choose>
+            <when test="tagType == 'onlyFollow'">
+                select * from table_tag_list,table_tag_list_like where table_tag_list.tag_id>${tagId} and
+                table_tag_list.tag_id=table_tag_list_like.tag_id and table_tag_list_like.user_id =${userId} and
+                table_tag_list_like.has_like=true
+                order by table_tag_list.tag_id limit ${pageCount}
+            </when>
+            <when test="tagType == 'excludeFollow'">
+                SELECT * FROM table_tag_list LEFT JOIN table_tag_list_like
+                on table_tag_list.tag_id>${tagId}
+                AND table_tag_list.tag_id=table_tag_list_like.tag_id
+                AND table_tag_list_like.user_id = ${userId}
+                AND table_tag_list_like.has_like =0
+                order by table_tag_list.tag_id limit ${pageCount} offset ${offset}
+            </when>
+            <otherwise>
+                select * from table_tag_list where table_tag_list.tag_id> ${tagId}
+                order by table_tag_list.tag_id limit ${pageCount}
+            </otherwise>
+        </choose>
+    </select>
+
+</mapper>

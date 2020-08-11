@@ -1,0 +1,59 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+<!DOCTYPE mapper PUBLIC
+        "-//mybatis.org//DTD com.example.Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.mapper.CommentMapper">
+    <resultMap id="result" type="com.example.demo.table.TableComment">
+        <result property="itemId" column="item_id"/>
+        <result property="commentId" column="comment_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="commentType" column="comment_type"/>
+        <result property="createTime" column="create_time"/>
+        <result property="commentCount" column="comment_count"/>
+        <result property="likeCount" column="like_count"/>
+        <result property="hasLiked" column="has_liked"/>
+        <result property="commentText" column="comment_text"/>
+        <result property="imageUrl" column="image_url"/>
+        <result property="videoUrl" column="video_url"/>
+        <result property="width" column="width"/>
+        <result property="height" column="height"/>
+    </resultMap>
+
+    <select id="queryTopComment" resultMap="result">
+        select * from table_feeds_comment  where item_id = if((select count(*) from table_feeds_comment WHERE item_id=${itemId})>0,${itemId},6725417009447704840)
+        and like_count >= 100 limit 1;
+    </select>
+
+    <select id="queryComment" resultMap="result">
+        select * from table_feeds_comment  where item_id = #{itemId} limit 1;
+    </select>
+
+    <select id="queryCommentByUserId" resultMap="result">
+        select * from table_feeds_comment  where item_id = #{itemId} and user_id=#{userId} order by create_time desc limit 1 offset #{offset};
+    </select>
+
+    <select id="queryCommentList" resultMap="result">
+    SELECT * FROM table_feeds_comment where item_id = if((select count(*) from table_feeds_comment WHERE item_id=${itemId})>0,${itemId},6700133439221274893) and id <![CDATA[ < ]]> ${id}
+    order by create_time desc limit ${pageCount};
+    </select>
+
+    <insert id="addComment" parameterType="com.example.demo.table.TableComment">
+       insert  into table_feeds_comment (comment_id,comment_type,comment_text,user_id,item_id,create_time,image_url,video_url,width,height)
+       values (#{comment.commentId},#{comment.commentType},#{comment.commentText},#{comment.userId},#{comment.itemId},#{comment.createTime},#{comment.imageUrl},#{comment.videoUrl},#{comment.width},#{comment.height})
+    </insert>
+
+    <insert id="addWatchHistory" useGeneratedKeys="true" keyProperty="id">
+        <selectKey keyProperty="id" order="BEFORE" resultType="java.lang.Integer">
+            select count(*) from table_watch_history where user_id= #{userId} and item_id= #{itemId}
+        </selectKey>
+
+        <choose>
+            <when test="id &lt;= 0">
+                insert into table_watch_history (user_id,item_id,time) values (#{userId},#{itemId},#{time})
+            </when>
+            <otherwise>
+                select id from table_watch_history where user_id= #{userId} and item_id= #{itemId}
+            </otherwise>
+        </choose>
+    </insert>
+</mapper>

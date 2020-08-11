@@ -1,0 +1,216 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+<!DOCTYPE mapper PUBLIC
+        "-//mybatis.org//DTD com.example.Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.mapper.UgcMapper">
+    <resultMap id="result" type="com.example.demo.table.TableFeedUgc">
+        <result property="id" column="id"/>
+        <result property="itemId" column="item_id"/>
+        <result property="likeCount" column="like_count"/>
+        <result property="shareCount" column="share_count"/>
+        <result property="commentCount" column="comment_count"/>
+        <result property="hasLiked" column="has_liked"/>
+        <result property="hasFavorite" column="has_favorite"/>
+    </resultMap>
+
+    <insert id="setUgc" parameterType="com.example.demo.table.TableFeedUgc" useGeneratedKeys="true" keyProperty="id">
+         insert into table_ugc
+         (item_id,like_count,share_count,comment_count)
+         values (${itemId},${likeCount},${shareCount},${commentCount}) on duplicate key update item_id=${itemId}
+    </insert>
+
+    <select id="queryUgcByItemId" resultMap="result">
+        select * from table_ugc  where item_id = ${itemId} limit 1
+    </select>
+
+    <select id="queryUgcByCommentId" resultMap="result">
+        select * from table_feed_comment_ugc  where comment_id = ${commentId} limit 1
+    </select>
+    <select id="queryCommentCount" resultType="java.lang.Integer">
+         select comment_count from table_ugc where item_id=${itemId} limit 1
+    </select>
+
+    <update id="increaseCommentCount">
+        <selectKey keyProperty="id" resultType="java.lang.Integer" order="BEFORE">
+            select count(*) from table_ugc where item_id = ${itemId}
+        </selectKey>
+        <choose>
+            <when test="id>0">
+                update table_ugc
+                set comment_count = comment_count+ #{increaseCount}
+                where item_id = ${itemId}
+            </when>
+            <otherwise>
+                insert table_ugc (comment_count,item_id) values (comment_count+#{increaseCount},${itemId})
+            </otherwise>
+        </choose>
+    </update>
+
+    <select id="queryLikeCount" resultType="java.lang.Integer">
+         select like_count from table_ugc where item_id=${itemId} limit 1;
+    </select>
+
+    <update id="increaseLikeCount">
+        <selectKey keyProperty="id" resultType="java.lang.Integer" order="BEFORE">
+            select count(*) from table_ugc where item_id = ${itemId}
+        </selectKey>
+        <choose>
+            <when test="id>0">
+                update table_ugc
+                set like_count = like_count+ #{increaseCount}
+                where item_id = ${itemId}
+            </when>
+            <otherwise>
+                insert table_ugc (like_count,item_id) values (like_count+#{increaseCount},${itemId})
+            </otherwise>
+        </choose>
+    </update>
+
+    <select id="queryShareCount" resultType="java.lang.Integer">
+     select share_count from table_ugc where item_id=${itemId} limit 1;
+    </select>
+
+    <update id="increaseShareCount">
+        <selectKey keyProperty="id" resultType="java.lang.Integer" order="BEFORE">
+            select count(*) from table_ugc where item_id = ${itemId}
+        </selectKey>
+        <choose>
+            <when test="id>0">
+                update table_ugc
+                set share_count = share_count+1
+                where item_id = ${itemId}
+            </when>
+            <otherwise>
+                insert table_ugc (share_count,item_id) values (share_count+1,${itemId})
+            </otherwise>
+        </choose>
+    </update>
+
+
+    <insert id="toggleLike">
+        <selectKey keyProperty="id" resultType="java.lang.Integer" order="BEFORE">
+            select count(*) from table_ugc_like where item_id = ${itemId} and user_id =${userId}
+        </selectKey>
+        <choose>
+            <when test="id>0">
+                update table_ugc_like
+                set has_like=has_like^1,has_diss= 0
+                where item_id = ${itemId} and user_id =${userId}
+            </when>
+            <otherwise>
+                insert into table_ugc_like (item_id,user_id,has_like)values (#{itemId},${userId},has_like^1)
+            </otherwise>
+        </choose>
+    </insert>
+
+    <select id="isLiked" resultType="java.lang.Boolean">
+         select has_like from table_ugc_like  where item_id =${itemId} and user_id =${userId} limit 1;
+    </select>
+
+
+    <insert id="dissFeed">
+        <selectKey keyProperty="id" resultType="java.lang.Integer" order="BEFORE">
+            select count(*) from table_ugc_like where item_id = ${itemId} and user_id =${userId}
+        </selectKey>
+        <choose>
+            <when test="id>0">
+                update table_ugc_like
+                set has_diss = has_diss^1,has_like= 0
+                where item_id = ${itemId} and user_id =${userId}
+            </when>
+            <otherwise>
+                insert into table_ugc_like (item_id,user_id,has_diss)values (#{itemId},${userId},has_diss^1)
+            </otherwise>
+        </choose>
+    </insert>
+
+    <select id="hasDissFeed" resultType="java.lang.Boolean">
+         select has_diss from table_ugc_like  where item_id =${itemId} and user_id =${userId} limit 1;
+    </select>
+
+
+    <insert id="toggleTagListFollow">
+        <selectKey keyProperty="id" resultType="java.lang.Integer" order="BEFORE">
+            select count(*) from table_tag_list_like where tag_id = ${tagId} and user_id =${userId}
+        </selectKey>
+        <choose>
+            <when test="id>0">
+                update table_tag_list_like
+                set has_like = has_like^1
+                where tag_id = ${tagId} and user_id =${userId}
+            </when>
+            <otherwise>
+                insert into table_tag_list_like (tag_id,user_id,has_like)values (${tagId},${userId},has_like^1)
+            </otherwise>
+        </choose>
+    </insert>
+
+    <select id="hasFollowTag" resultType="java.lang.Boolean">
+         select has_like from table_tag_list_like  where tag_id =${tagId} and user_id =${userId};
+    </select>
+
+
+    <insert id="toggleCommentLike">
+        <selectKey keyProperty="id" resultType="java.lang.Integer" order="BEFORE">
+            select count(*) from table_feed_comment_like where comment_id = ${commentId} and user_id =${userId}
+        </selectKey>
+        <choose>
+            <when test="id>0">
+                update table_feed_comment_like
+                set has_like = has_like^1
+                where comment_id = ${commentId} and user_id =${userId}
+            </when>
+            <otherwise>
+                insert into table_feed_comment_like (comment_id,user_id,has_like)values
+                (#{commentId},${userId},has_like^1)
+            </otherwise>
+        </choose>
+    </insert>
+
+    <select id="isCommentLike" resultType="java.lang.Boolean">
+         select has_like from table_feed_comment_like  where comment_id =${commentId} and user_id =${userId} limit 1;
+    </select>
+
+
+    <insert id="toggleUserFollow">
+        <selectKey keyProperty="id" resultType="java.lang.Integer" order="BEFORE">
+            select count(*) from table_user_follow where follow_user_id = ${followUserId} and user_id =${userId}
+        </selectKey>
+        <choose>
+            <when test="id>0">
+                update table_user_follow
+                set has_follow = has_follow^1
+                where user_id = ${userId} and follow_user_id =${followUserId}
+            </when>
+            <otherwise>
+                insert into table_user_follow (user_id,follow_user_id,has_follow)values
+                (#{userId},${followUserId},1)
+            </otherwise>
+        </choose>
+    </insert>
+
+    <select id="isUserFollow" resultType="java.lang.Boolean">
+         select has_follow from table_user_follow  where user_id =${userId} and follow_user_id =${followUserId} limit 1;
+    </select>
+
+
+    <insert id="toggleFavorite">
+        <selectKey keyProperty="id" resultType="java.lang.Integer" order="BEFORE">
+            select count(*) from table_ugc_like where item_id = ${itemId} and user_id =${userId}
+        </selectKey>
+        <choose>
+            <when test="id>0">
+                update table_ugc_like
+                set has_favorite=has_favorite^1
+                where item_id = ${itemId} and user_id =${userId}
+            </when>
+            <otherwise>
+                insert into table_ugc_like (item_id,user_id,has_favorite)values (#{itemId},${userId},has_favorite^1)
+            </otherwise>
+        </choose>
+    </insert>
+
+    <select id="hasFavorite" resultType="java.lang.Boolean">
+         select has_favorite from table_ugc_like  where item_id =${itemId} and user_id =${userId} limit 1;
+    </select>
+</mapper>

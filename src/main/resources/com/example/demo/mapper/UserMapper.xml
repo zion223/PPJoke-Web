@@ -1,0 +1,120 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+<!DOCTYPE mapper PUBLIC
+        "-//mybatis.org//DTD com.example.Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.mapper.UserMapper">
+    <resultMap id="result" type="com.example.demo.table.TableUser">
+        <result property="id" column="id"></result>
+        <result property="userId" column="user_id"/>
+        <result property="name" column="name"/>
+        <result property="avatar" column="avatar"/>
+        <result property="description" column="description"/>
+        <result property="likeCount" column="like_count"/>
+        <result property="topCommentCount" column="top_count"/>
+        <result property="followCount" column="follow_count"/>
+        <result property="qqOpenId" column="qq_openid"/>
+        <result property="expires_time" column="expires_time"/>
+        <result property="followerCount" column="follower_count"/>
+        <result property="score" column="score"/>
+        <result property="historyCount" column="history_count"></result>
+        <result property="favoriteCount" column="favorite_count"></result>
+        <result property="feedCount" column="feed_count"></result>
+        <result property="commentCount" column="comment_count"></result>
+    </resultMap>
+
+    <select id="queryUser" resultMap="result">
+        select * from table_user  where user_id = if((select count(*) from table_user WHERE user_id=${userId})>0,${userId},110059958299) limit 1;
+    </select>
+
+    <select id="queryUserByQQOpenId" resultMap="result">
+        select * from table_user  where qq_openid =#{qqOpenId}
+    </select>
+
+    <insert id="insertUser" keyProperty="id" useGeneratedKeys="true" parameterType="com.example.demo.table.TableUser">
+        <selectKey keyProperty="id" order="BEFORE" resultType="java.lang.Integer">
+            select count(*) from table_user where user_id= #{user.userId}
+        </selectKey>
+        <choose>
+            <when test="id>0">
+                update table_user
+                <set>
+                    <if test="user.name!=null">
+                        name = #{user.name},
+                    </if>
+                    <if test="user.avatar!=null">
+                        avatar = #{user.avatar},
+                    </if>
+                    <if test="user.description!=null">
+                        description = #{user.description},
+                    </if>
+                    <if test="user.likeCount>0">
+                        like_count = #{user.likeCount},
+                    </if>
+                    <if test="user.topCommentCount>0">
+                        top_count = #{user.topCommentCount},
+                    </if>
+                    <if test="user.followCount>0">
+                        follow_count = #{user.followCount},
+                    </if>
+                    <if test="user.followerCount>0">
+                        follower_count = #{user.followerCount},
+                    </if>
+                    <if test="user.score>0">
+                        score = #{user.score},
+                    </if>
+                    <if test="user.historyCount>0">
+                        history_count = #{user.historyCount},
+                    </if>
+                    <if test="user.favoriteCount>0">
+                        favorite_count = #{user.favoriteCount},
+                    </if>
+                    <if test="user.feedCount>0">
+                        feed_count = #{user.feedCount},
+                    </if>
+                    <if test="user.commentCount>0">
+                        comment_count = #{user.commentCount},
+                    </if>
+                </set>
+                where user_id= #{user.userId}
+            </when>
+            <otherwise>
+                INSERT INTO table_user
+                (qq_openid,user_id,name,avatar,description,like_count,top_count,follow_count,follower_count,expires_time,score,history_count,comment_count,favorite_count,feed_count)
+                VALUES (
+                #{user.qqOpenId,jdbcType=VARCHAR},
+                #{user.userId,jdbcType=BIGINT},
+                #{user.name,jdbcType=VARCHAR},
+                #{user.avatar,jdbcType=VARCHAR},
+                #{user.description,jdbcType=VARCHAR},
+                #{user.likeCount,jdbcType=INTEGER},
+                #{user.topCommentCount,jdbcType=INTEGER},
+                #{user.followerCount,jdbcType=INTEGER},
+                #{user.followCount,jdbcType=INTEGER},
+                #{user.expires_time,jdbcType=BIGINT},
+                #{user.score,jdbcType=BIGINT},
+                #{user.historyCount,jdbcType=INTEGER},
+                #{user.commentCount,jdbcType=INTEGER},
+                #{user.favoriteCount,jdbcType=INTEGER},
+                #{user.feedCount,jdbcType=INTEGER}
+                )
+            </otherwise>
+        </choose>
+    </insert>
+
+    <select id="queryFans" resultMap="result">
+        select * from table_user,table_user_follow
+        where table_user_follow.user_id = #{userId}
+        and table_user_follow.has_follow=1
+        AND table_user_follow.follow_user_id = table_user.user_id
+        order by table_user_follow.id desc limit #{pageCount} offset #{offset}
+    </select>
+
+
+    <select id="queryFollows" resultMap="result">
+        select * from table_user,table_user_follow
+        where table_user_follow.follow_user_id = #{userId}
+        and table_user_follow.has_follow=1
+        AND table_user_follow.user_id = table_user.user_id
+        order by table_user_follow.id desc limit #{pageCount} offset #{offset}
+    </select>
+</mapper>

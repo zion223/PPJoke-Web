@@ -1,0 +1,31 @@
+server:
+  port: 8080  #设置端口号
+  servlet:
+    context-path: /serverdemo
+
+
+spring:
+  datasource:
+    url: jdbc:mysql://62.234.57.125:3306/ppjoke?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: root
+    password: 15215325438+Aa
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    tomcat:
+      init-s-q-l: SET NAMES utf8mb4
+
+    servlet:
+      multipart:
+        file-size-threshold:2KB
+        max-file-size:200MB
+        max-request-size:215MB
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+mybatis:
+  configuration:
+    logImpl: org.apache.ibatis.logging.stdout.StdOutImpl
+  type-aliases-package: com.example.demo.table
+  mapper-locations: classpath:/com/example/demo/mapper/*.xml

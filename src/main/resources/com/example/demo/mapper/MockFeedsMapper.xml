@@ -1,0 +1,171 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+<!DOCTYPE mapper PUBLIC
+        "-//mybatis.org//DTD com.example.Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.mapper.MockFeedsMapper">
+    <resultMap id="result" type="com.example.demo.table.TableHotFeeds">
+        <result property="id" column="id"></result>
+        <result property="itemId" column="item_id"/>
+        <result property="itemType" column="item_type"/>
+        <result property="createTime" column="create_time"/>
+        <result property="duration" column="duration"/>
+        <result property="feeds_text" column="feeds_text"/>
+        <result property="authorId" column="author_id"/>
+        <result property="activityText" column="activity_text"/>
+        <result property="activityIcon" column="activity_icon"/>
+        <result property="width" column="video_width"/>
+        <result property="height" column="video_height"/>
+        <result property="url" column="video_url"/>
+        <result property="cover" column="video_cover"/>
+    </resultMap>
+
+    <resultMap id="resultComment" type="com.example.demo.table.TableComment">
+        <result property="id" column="id"></result>
+        <result property="itemId" column="item_id"/>
+        <result property="commentId" column="comment_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="commentType" column="comment_type"/>
+        <result property="createTime" column="create_time"/>
+        <result property="commentCount" column="comment_count"/>
+        <result property="likeCount" column="like_count"/>
+        <result property="commentText" column="comment_text"/>
+        <result property="imageUrl" column="image_url"/>
+        <result property="videoUrl" column="video_url"/>
+        <result property="width" column="width"/>
+        <result property="height" column="height"/>
+    </resultMap>
+
+
+    <resultMap id="resultTagList" type="com.example.demo.table.TableTagList">
+        <result property="id" column="id"></result>
+        <result property="icon" column="icon"/>
+        <result property="background" column="background"/>
+        <result property="activityIcon" column="activity_icon"/>
+        <result property="title" column="title"/>
+        <result property="intro" column="intro"/>
+        <result property="feedNum" column="feed_num"/>
+        <result property="tagId" column="tag_id"/>
+        <result property="enterNum" column="enter_num"/>
+        <result property="followNum" column="follow_num"/>
+    </resultMap>
+
+
+    <resultMap id="resultUser" type="com.example.demo.table.TableUser">
+        <result property="id" column="id"></result>
+        <result property="userId" column="user_id"/>
+        <result property="name" column="name"/>
+        <result property="avatar" column="avatar"/>
+        <result property="description" column="description"/>
+    </resultMap>
+
+    <insert id="insertHotFeeds" parameterType="com.example.demo.table.TableHotFeeds"
+            keyProperty="id" useGeneratedKeys="true">
+
+        INSERT INTO table_hot_feeds
+        (
+        id,item_id,item_type,create_time,duration,
+        feeds_text,author_id,activity_text,
+        activity_icon,video_width,video_height,video_url,video_cover
+        )
+        VALUES (
+        #{id},
+        #{itemId,jdbcType=BIGINT},
+        #{itemType, jdbcType=INTEGER},
+        #{createTime,jdbcType=INTEGER},
+        #{duration,jdbcType=DOUBLE},
+        #{feeds_text,jdbcType=VARCHAR},
+        #{authorId,jdbcType=BIGINT},
+        #{activityText,jdbcType=VARCHAR},
+        #{activityIcon,jdbcType=LONGVARCHAR},
+        #{width,jdbcType=INTEGER},
+        #{height,jdbcType=INTEGER},
+        #{url,jdbcType=LONGVARCHAR},
+        #{cover,jdbcType=LONGVARCHAR}
+        )
+    </insert>
+
+    <insert id="insertComments" parameterType="com.example.demo.table.TableComment"
+            useGeneratedKeys="true" keyProperty="id">
+    INSERT INTO table_feeds_comment (id,item_id,user_id,comment_id,comment_type,create_time,comment_count,like_count,comment_text,image_url,video_url,width,height)
+   VALUES (
+   #{id},
+   #{itemId,jdbcType=BIGINT},
+   #{userId,jdbcType=BIGINT},
+   #{commentId,jdbcType=BIGINT},
+   #{commentType,jdbcType=INTEGER},
+   #{createTime,jdbcType=INTEGER},
+   #{commentCount,jdbcType=INTEGER},
+   #{likeCount,jdbcType=INTEGER},
+   #{commentText,jdbcType=VARCHAR},
+   #{imageUrl,jdbcType=LONGVARCHAR},
+   #{videoUrl,jdbcType=LONGVARCHAR},
+   #{width,jdbcType=INTEGER},
+   #{height,jdbcType=INTEGER}
+   )
+    </insert>
+
+
+    <insert id="insertUser" useGeneratedKeys="true" keyProperty="id"
+            parameterType="com.example.demo.table.TableUser">
+
+        <selectKey keyProperty="id" resultType="java.lang.Integer" order="BEFORE">
+            select count(*) from table_user where user_id = #{userId}
+        </selectKey>
+        <choose>
+            <when test="id>0">
+                update table_user set name =#{name},avatar =#{avatar},description= #{description} where
+                user_id=#{userId}
+            </when>
+            <otherwise>
+                INSERT INTO table_user
+                (
+                id,user_id,name,avatar,description
+                )
+                VALUES (
+                #{id},
+                #{userId,jdbcType=BIGINT},
+                #{name,jdbcType=VARCHAR},
+                #{avatar,jdbcType=LONGVARCHAR},
+                #{description,jdbcType=VARCHAR}
+                )
+            </otherwise>
+        </choose>
+    </insert>
+
+
+    <insert id="insertTag" useGeneratedKeys="true" keyProperty="id"
+            parameterType="com.example.demo.table.TableTagList">
+
+        <selectKey keyProperty="id" resultType="java.lang.Integer" order="BEFORE">
+            select count(*) from table_tag_list where tag_id = #{tagId}
+        </selectKey>
+        <choose>
+            <when test="id>0">
+                update table_tag_list set title =#{title},intro =#{intro},icon= #{icon},activity_icon=
+                #{activityIcon},background=#{background},feed_num= #{feedNum} ,enter_num= #{enterNum},follow_num=
+                #{followNum} where
+                tag_id=#{tagId}
+            </when>
+            <otherwise>
+                INSERT INTO table_tag_list
+                (
+                id,title,intro,icon,activity_icon,feed_num,enter_num,follow_num,tag_id,background
+                )
+                VALUES (
+                #{id},
+                #{title},
+                #{intro},
+                #{icon},
+                #{activityIcon},
+                #{feedNum},
+                #{enterNum},
+                #{followNum},
+                #{tagId},
+                #{background}
+                )
+            </otherwise>
+        </choose>
+    </insert>
+
+
+</mapper>

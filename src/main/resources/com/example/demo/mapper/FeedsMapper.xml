@@ -1,0 +1,170 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+<!DOCTYPE mapper PUBLIC
+        "-//mybatis.org//DTD com.example.Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.mapper.FeedsMapper">
+    <resultMap id="result" type="com.example.demo.table.TableHotFeeds">
+        <result property="id" column="id"/>
+        <result property="itemId" column="item_id"/>
+        <result property="itemType" column="item_type"/>
+        <result property="createTime" column="create_time"/>
+        <result property="duration" column="duration"/>
+        <result property="feeds_text" column="feeds_text"/>
+        <result property="authorId" column="author_id"/>
+        <result property="activityText" column="activity_text"/>
+        <result property="activityIcon" column="activity_icon"/>
+        <result property="width" column="video_width"/>
+        <result property="height" column="video_height"/>
+        <result property="url" column="video_url"/>
+        <result property="cover" column="video_cover"/>
+    </resultMap>
+
+    <!--    <association property="ugc" javaType="com.example.demo.table.TableFeedUgc" column="item_id">-->
+    <!--        <result property="id" column="id"/>-->
+    <!--        <result property="itemId" column="item_id"/>-->
+    <!--        <result property="likeCount" column="like_count"/>-->
+    <!--        <result property="shareCount" column="share_count"/>-->
+    <!--        <result property="commentCount" column="comment_count"/>-->
+    <!--    </association>-->
+    <!--        <association property="topComment" javaType="com.example.demo.table.TableComment" column="item_id">-->
+    <!--            <result property="itemId" column="item_id"/>-->
+    <!--            <result property="commentId" column="comment_id"/>-->
+    <!--            <result property="userId" column="user_id"/>-->
+    <!--            <result property="commentType" column="comment_type"/>-->
+    <!--            <result property="createTime" column="create_time"/>-->
+    <!--            <result property="commentCount" column="comment_count"/>-->
+    <!--            <result property="likeCount" column="like_count"/>-->
+    <!--            <result property="hasLiked" column="has_liked"/>-->
+    <!--            <result property="commentText" column="comment_text"/>-->
+    <!--            <result property="imageUrl" column="image_url"/>-->
+    <!--            <result property="videoUrl" column="video_url"/>-->
+    <!--            <result property="width" column="width"/>-->
+    <!--            <result property="height" column="height"/>-->
+    <!--        </association>-->
+
+    <select id="queryHotFeedsList" resultMap="result">
+        <choose>
+            <when test="feedType=='text'">
+                SELECT table_hot_feeds.* FROM table_hot_feeds where item_type =1 and video_url is NULL AND video_cover
+                is null
+            </when>
+            <when test="feedType=='pics'">
+                SELECT table_hot_feeds.* FROM table_hot_feeds where item_type =1 and video_cover is not null and video_cover!=''
+            </when>
+            <when test="feedType=='video'">
+                SELECT table_hot_feeds.* FROM table_hot_feeds,table_ugc where item_type =2
+                and table_hot_feeds.item_id = table_ugc.item_id
+                and table_ugc.like_count  <![CDATA[ <= ]]> 1000 and table_ugc.comment_count  <![CDATA[ <= ]]> 500
+            </when>
+            <when test="feedType=='all' or feedType=='' ">
+                SELECT
+                table_hot_feeds.*
+                FROM table_hot_feeds,table_ugc WHERE table_hot_feeds.item_id = table_ugc.item_id and
+                table_ugc.like_count>1000 and table_ugc.comment_count>500
+            </when>
+            <otherwise>
+                SELECT
+                table_hot_feeds.*
+                FROM table_hot_feeds WHERE table_hot_feeds.activity_text = #{feedType}
+            </otherwise>
+        </choose>
+        <if test="inId>0">
+            and table_hot_feeds.id <![CDATA[ < ]]> #{inId}
+        </if>
+        group by table_hot_feeds.id order by table_hot_feeds.id desc limit #{pageCount};
+    </select>
+
+    <insert id="addFeed" keyProperty="id" useGeneratedKeys="true" parameterType="com.example.demo.table.TableHotFeeds">
+        insert into table_hot_feeds
+        (item_id,item_type,create_time,duration,feeds_text,author_id,activity_text,activity_icon,video_width,video_height,video_url,video_cover)
+        values (#{feed.itemId},
+        #{feed.itemType},
+        #{feed.createTime},
+        #{feed.duration},
+        #{feed.feeds_text},
+        #{feed.authorId},
+        #{feed.activityText},
+        #{feed.activityIcon},
+        #{feed.width},
+        #{feed.height},
+        #{feed.url},
+        #{feed.cover})
+    </insert>
+
+
+    <select id="queryProfileFeeds" resultMap="result">
+        <choose>
+            <when test="profileType=='tab_all'">
+                select t.* from ((SELECT table_hot_feeds.id,
+                table_hot_feeds.item_id,
+                table_hot_feeds.item_type,
+                table_hot_feeds.create_time,
+                table_hot_feeds.duration,
+                table_hot_feeds.feeds_text,
+                table_hot_feeds.author_id,
+                table_hot_feeds.activity_text,
+                table_hot_feeds.activity_icon,
+                table_hot_feeds.video_width,
+                table_hot_feeds.video_height,
+                table_hot_feeds.video_url,
+                table_hot_feeds.video_cover FROM table_hot_feeds WHERE table_hot_feeds.author_id=#{userId} AND
+                table_hot_feeds.id <![CDATA[ < ]]> #{feedId})
+
+                union ALL(SELECT table_hot_feeds.id,
+                table_hot_feeds.item_id,
+                table_hot_feeds.item_type,
+                table_hot_feeds.create_time,
+                table_hot_feeds.duration,
+                table_hot_feeds.feeds_text,
+                table_hot_feeds.author_id,
+                table_hot_feeds.activity_text,
+                table_hot_feeds.activity_icon,
+                table_hot_feeds.video_width,
+                table_hot_feeds.video_height,
+                table_hot_feeds.video_url,
+                table_hot_feeds.video_cover FROM table_hot_feeds, table_feeds_comment WHERE
+                table_feeds_comment.item_id=table_hot_feeds.item_id and table_feeds_comment.user_id=#{userId} AND
+                table_hot_feeds.id <![CDATA[ < ]]> #{feedId}))
+                t order by t.id desc limit #{pageCount};
+
+            </when>
+            <when test="profileType=='tab_feed'">
+                SELECT * FROM table_hot_feeds
+                where table_hot_feeds.author_id =#{userId}
+                and table_hot_feeds.id <![CDATA[ < ]]> #{feedId} order by table_hot_feeds.id desc limit #{pageCount};
+            </when>
+            <when test="profileType=='tab_comment'">
+                SELECT * FROM table_hot_feeds,table_feeds_comment
+                where table_feeds_comment.item_id=table_hot_feeds.item_id and table_feeds_comment.user_id=${userId}
+                and table_hot_feeds.id <![CDATA[ < ]]> #{feedId} order by table_hot_feeds.id desc limit #{pageCount};
+            </when>
+        </choose>
+    </select>
+
+
+    <delete id="deleteFeed" parameterType="java.lang.Long">
+        delete from table_hot_feeds where table_hot_feeds.item_id= #{itemId}
+    </delete>
+
+    <select id="queryFeed" parameterType="java.lang.Long" resultMap="result">
+        select * from table_hot_feeds where item_id= #{itemId}
+    </select>
+
+    <select id="queryHistory" resultMap="result">
+        select * from table_hot_feeds,table_watch_history
+        where table_watch_history.user_id =#{userId}
+        and table_hot_feeds.id <![CDATA[ < ]]> #{feedId}
+        and table_watch_history.item_id =table_hot_feeds.item_id
+        order by table_hot_feeds.id desc limit #{pageCount}
+    </select>
+
+
+    <select id="queryFavorite" resultMap="result">
+        select * from table_hot_feeds,table_ugc_like
+        where table_ugc_like.user_id =#{userId}
+        and table_hot_feeds.id <![CDATA[ < ]]> #{feedId}
+        and table_ugc_like.has_favorite=1
+        AND table_hot_feeds.item_id = table_ugc_like.item_id
+        order by table_hot_feeds.id desc limit #{pageCount}
+    </select>
+</mapper>
