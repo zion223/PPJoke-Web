@@ -6,6 +6,7 @@ import com.example.demo.mapper.UserMapper;
 import com.example.demo.table.TableUser;
 import com.example.demo.table.User;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.util.StringUtils;
@@ -30,7 +31,7 @@ public class UserController {
     @RequestMapping(value = "query", method = RequestMethod.GET)
     @ApiOperation(value = "查询用户", notes = "根据id来查询用户")
     @JsonView(value = TableUser.class)
-    public ApiResponse query(@RequestParam(value = "userId") long userId) {
+    public ApiResponse<TableUser> query(@RequestParam(value = "userId") long userId) {
         ApiResponse<TableUser> response = new ApiResponse<>();
         TableUser user = userMapper.queryUser(userId);
         if (user != null) {
@@ -43,7 +44,7 @@ public class UserController {
     @RequestMapping(value = "relation", method = RequestMethod.GET)
     @ApiOperation(value = "查询两个用户的关系", notes = "根据id来查询用户")
     @JsonView(value = TableUser.class)
-    public ApiResponse relation(@RequestParam(value = "authorId") long authorId, @RequestParam("userId") long userId) {
+    public ApiResponse<TableUser> relation(@RequestParam(value = "authorId") long authorId, @RequestParam("userId") long userId) {
         ApiResponse<TableUser> response = new ApiResponse<>();
         TableUser user = userMapper.queryUser(authorId);
         try {
@@ -59,37 +60,28 @@ public class UserController {
     @RequestMapping(value = "delete", method = RequestMethod.GET)
     @ApiOperation(value = "删除用户", notes = "根据id来删除用户")
     @JsonView(value = Boolean.class)
-    public ApiResponse delete(@RequestParam(value = "userId") long userId) {
+    public ApiResponse<Boolean> delete(@RequestParam(value = "userId") long userId) {
         ApiResponse<Boolean> response = new ApiResponse<>();
         int result = userMapper.delete(userId);
-        if (result >= 1) {
-            response.setData(true);
-        } else {
-            response.setData(false);
-        }
+        response.setData(result >= 1);
         return response;
     }
 
     @RequestMapping(value = "update", method = RequestMethod.POST)
     @ApiOperation(value = "更新用户信息", notes = "根据id来更新用户信息")
     @JsonView(value = Boolean.class)
-    public ApiResponse update(@RequestParam @Valid TableUser user, BindingResult binding) {
+    public ApiResponse<Boolean> update(@RequestParam @Valid TableUser user, BindingResult binding) {
         ApiResponse<Boolean> response = new ApiResponse<>();
         int result = userMapper.Update(user);
-        if (result >= 1) {
-            response.setData(true);
-        } else {
-            response.setData(false);
-        }
+        response.setData(result >= 1);
         return response;
-
     }
 
     @RequestMapping(value = "insert", method = RequestMethod.GET)
     @ApiOperation(value = "插入新的用户", notes = "插入新的用户")
     @JsonView(User.class)
     @ResponseBody
-    public ApiResponse insert(@RequestParam(value = "qqOpenId", required = true) String qqOpenId,
+    public ApiResponse<TableUser> insert(@RequestParam(value = "qqOpenId", required = true) String qqOpenId,
                               @RequestParam(value = "name", required = true) String name,
                               @RequestParam(value = "avatar", required = true) String avatar,
                               @RequestParam(value = "description", required = false, defaultValue = "") String description,
