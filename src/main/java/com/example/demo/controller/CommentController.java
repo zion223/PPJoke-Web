@@ -36,7 +36,7 @@ public class CommentController {
     @ApiOperation(value = "用于查询帖子的评论列表 支持分页")
     @RequestMapping(value = "queryFeedComments", method = RequestMethod.GET)
     @JsonView(value = TableComment.class)
-    public ApiResponse queryFeedComments(@RequestParam(value = "userId", required = false, defaultValue = "0") Long userId,
+    public ApiResponse<Object> queryFeedComments(@RequestParam(value = "userId", required = false, defaultValue = "0") Long userId,
                                          @RequestParam(value = "pageCount", required = false, defaultValue = "10") Integer pageCount, @RequestParam(value = "itemId", required = true) Long itemId,
                                          @RequestParam(value = "id", required = false, defaultValue = "0") Integer id) {
 
@@ -77,7 +77,7 @@ public class CommentController {
     @ApiOperation(value = "用于帖子增加一条评论")
     @PostMapping(value = "addComment")
     @JsonView(value = TableComment.class)
-    public ApiResponse addComment(@RequestParam(value = "userId", required = false, defaultValue = "0") Long userId,
+    public ApiResponse<Object> addComment(@RequestParam(value = "userId", required = false, defaultValue = "0") Long userId,
                                   @RequestParam(value = "itemId", required = true) Long itemId,
                                   @RequestParam(value = "commentText", required = false, defaultValue = "") String commentText,
                                   @RequestParam(value = "image_url", required = false, defaultValue = "") String image_url,
@@ -130,7 +130,7 @@ public class CommentController {
     @ApiOperation(value = "删除帖子的一条评论")
     @RequestMapping(value = "deleteComment", method = RequestMethod.GET)
     @JsonView(value = TableComment.class)
-    public ApiResponse deleteComment(@RequestParam(value = "itemId", defaultValue = "0") Long itemId,
+    public ApiResponse<Object> deleteComment(@RequestParam(value = "itemId", defaultValue = "0") Long itemId,
                                      @RequestParam(value = "userId", defaultValue = "0") Long userId,
                                      @RequestParam(value = "commentId", defaultValue = "0") Long commentId) {
 
@@ -147,12 +147,7 @@ public class CommentController {
             user.commentCount = user.commentCount - 1;
             userMapper.insertUser(user);
         }
-
-        if (result > 0) {
-            response.setData("result", true);
-        } else {
-            response.setData("result", false);
-        }
+        response.setData("result", result > 0);
         return response;
     }
 }

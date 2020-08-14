@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.demo.mapper.UserMapper">
     <resultMap id="result" type="com.example.demo.table.TableUser">
-        <result property="id" column="id"></result>
+        <result property="id" column="id"/>
         <result property="userId" column="user_id"/>
         <result property="name" column="name"/>
         <result property="avatar" column="avatar"/>
@@ -16,10 +16,10 @@
         <result property="expires_time" column="expires_time"/>
         <result property="followerCount" column="follower_count"/>
         <result property="score" column="score"/>
-        <result property="historyCount" column="history_count"></result>
-        <result property="favoriteCount" column="favorite_count"></result>
-        <result property="feedCount" column="feed_count"></result>
-        <result property="commentCount" column="comment_count"></result>
+        <result property="historyCount" column="history_count"/>
+        <result property="favoriteCount" column="favorite_count"/>
+        <result property="feedCount" column="feed_count"/>
+        <result property="commentCount" column="comment_count"/>
     </resultMap>
 
     <select id="queryUser" resultMap="result">

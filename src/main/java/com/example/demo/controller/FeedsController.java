@@ -60,7 +60,7 @@ public class FeedsController {
     @RequestMapping(value = "/queryProfileFeeds", method = RequestMethod.GET)
     @ApiOperation(value = "查询用户的动态帖子", notes = "根据id来查询")
     @JsonView(value = TableHotFeeds.class)
-    public ApiResponse queryProfileFeeds(@RequestParam(value = "userId", required = true) long userId,
+    public ApiResponse<Object> queryProfileFeeds(@RequestParam(value = "userId", required = true) long userId,
                                          @RequestParam(value = "pageCount", required = false, defaultValue = "10") int pageCount,
                                          @RequestParam(value = "profileType", required = true) String profileType,
                                          @RequestParam(value = "feedId", required = true, defaultValue = "0") int feedId) {
@@ -156,7 +156,7 @@ public class FeedsController {
 
     @RequestMapping(value = "deleteFeed", method = RequestMethod.GET)
     @ApiOperation(value = "删除一条帖子")
-    public ApiResponse deleteFeed(@RequestParam("itemId") Long itemId) {
+    public ApiResponse<Object> deleteFeed(@RequestParam("itemId") Long itemId) {
         ApiResponse<Object> response = new ApiResponse<>();
         if (itemId == null) {
             response.setData("result", "itemId不能为空");
@@ -170,7 +170,7 @@ public class FeedsController {
 
     @RequestMapping(value = "queryUserBehaviorList", method = RequestMethod.GET)
     @ApiOperation(value = "查询历史观看记录，或者收藏的记录")
-    public ApiResponse queryUserBehaviorList(@RequestParam("userId") Long userId,
+    public ApiResponse<List<TableHotFeeds>> queryUserBehaviorList(@RequestParam("userId") Long userId,
                                              @RequestParam(value = "pageCount", defaultValue = "10", required = false) int pageCount,
                                              @RequestParam(value = "feedId", defaultValue = "0") int feedId,
                                              @RequestParam(value = "behavior", defaultValue = "0") int behavior) {
@@ -184,7 +184,7 @@ public class FeedsController {
 
     @RequestMapping(value = "queryHistory", method = RequestMethod.GET)
     @ApiOperation(value = "查询历史观看记录")
-    public ApiResponse queryHistory(@RequestParam("userId") Long userId,
+    public ApiResponse<List<TableHotFeeds>> queryHistory(@RequestParam("userId") Long userId,
                                     @RequestParam(value = "pageCount", defaultValue = "10", required = false) int pageCount,
                                     @RequestParam(value = "feedId", defaultValue = "0") int feedId) {
         ApiResponse<List<TableHotFeeds>> response = new ApiResponse<>();
@@ -203,7 +203,7 @@ public class FeedsController {
 
     @RequestMapping(value = "queryFavorite", method = RequestMethod.GET)
     @ApiOperation(value = "查询收藏记录")
-    public ApiResponse queryFavorite(@RequestParam("userId") Long userId,
+    public ApiResponse<List<TableHotFeeds>> queryFavorite(@RequestParam("userId") Long userId,
                                      @RequestParam(value = "pageCount", defaultValue = "10", required = false) int pageCount,
                                      @RequestParam("feedId") int feedId) {
         ApiResponse<List<TableHotFeeds>> response = new ApiResponse<>();

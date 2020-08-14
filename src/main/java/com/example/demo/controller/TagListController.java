@@ -29,7 +29,7 @@ public class TagListController {
     @ApiOperation(value = "查询tagList数据")
     @RequestMapping(value = "queryTagList", method = RequestMethod.GET)
     @JsonView(value = TableTagList.class)
-    public ApiResponse queryTagList(@RequestParam(value = "tagId", required = false, defaultValue = "0") long tagId,
+    public ApiResponse<List<TableTagList>> queryTagList(@RequestParam(value = "tagId", required = false, defaultValue = "0") long tagId,
                                     @RequestParam(value = "pageCount", required = false, defaultValue = "10") int pageCount,
                                     @RequestParam(value = "userId", required = false, defaultValue = "0") long userId,
                                     @RequestParam(value = "offset", required = true, defaultValue = "0") int offset,
@@ -52,7 +52,7 @@ public class TagListController {
     @ApiOperation(value = "变更对某个标签的喜欢")
     @RequestMapping(value = "toggleTagFollow")
     @JsonView(value = Boolean.class)
-    public ApiResponse toggleTagFollow(@RequestParam(value = "tagId", required = false, defaultValue = "0") long tagId,
+    public ApiResponse<Object> toggleTagFollow(@RequestParam(value = "tagId", required = false, defaultValue = "0") long tagId,
                                        @RequestParam(value = "userId", required = false, defaultValue = "0") long userId) {
 
         ApiResponse<Object> response = new ApiResponse<>();
