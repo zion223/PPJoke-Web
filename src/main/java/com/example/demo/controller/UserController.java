@@ -19,7 +19,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping(value = "/user")
-@Api(value = "用户信息接口")
+@Api(value = "用户信息接口API")
 public class UserController {
     @Resource
     private UserMapper userMapper;

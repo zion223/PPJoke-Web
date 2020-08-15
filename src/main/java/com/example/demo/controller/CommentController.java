@@ -18,7 +18,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping(value = "/comment")
-@Api(value = "帖子的评论列表查询")
+@Api(value = "帖子的评论列表查询API")
 public class CommentController {
 
     @Resource

@@ -17,7 +17,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping(value = "/tag")
-@Api(value = "帖子标签列表")
+@Api(value = "帖子标签列表API")
 public class TagListController {
 
     @Resource

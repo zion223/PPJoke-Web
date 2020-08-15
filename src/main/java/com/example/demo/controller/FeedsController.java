@@ -23,7 +23,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping(value = "/feeds")
-@Api(value = "帖子列表流控制器")
+@Api(value = "帖子列表流控制器API")
 public class FeedsController {
     @Resource
     FeedsMapper feedsMapper;

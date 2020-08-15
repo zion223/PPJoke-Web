@@ -19,7 +19,7 @@ import javax.annotation.Resource;
 
 @RestController
 @RequestMapping(value = "/ugc")
-@Api(value = "ugc相关接口")
+@Api(value = "帖子相关接口API")
 public class UgcController {
     @Resource
     UgcMapper ugcMapper;
